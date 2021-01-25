@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const data = require("./data/pokemon.js");
+const pokemon = require("./data/pokemon.js");
 
 /******************Middleware****************** */
 //this lets the seerver read json from the client request and
@@ -71,43 +72,76 @@ app.get("/pokemon/:id/attacks", function(req, res) {
 
 //Add new pokemon
 app.post("/pokemon", function(req, res) {
-  //get data fromm req body
+  //Get pokemon data from request body
   let newPokemon = req.body;
-  newPokemon.id = nextID++;
   console.log(req.body);
-  data.push(req.body);
-  res.send(data);
+  //Add a unique ID
+  newPokemon.id = data.id++;
+  //Add pokemon to DB
+  data.push(newPokemon);
+  //Return status code 201: new resource created, and confirm
+  res.status(201).send(data);
+  // checked and prints to console with updated id # but shows as NaN when using GET
 });
 
+/*
+app.post('/cats', (req, res) => {
+    // Get cat data from request body
+    let newCat = req.body;
+    // Add a unique ID
+    newCat.id = nextId++;
+    // Add cat to my "DB"
+    catsData.push(newCat);
+    // Status code 201 means: new resource created
+    res.status(201).send(newCat);
+});
+
+*/
+
 //Add homepage
+//Send request for homepage
 app.get("/", function(req, res) {
+  //Get response sent with message if request accepted
   res.send("Hello world");
 }); //checked http://localhost:3000/ on Postman and works
 
-//Update/replace a pokemon by ID
+// Update/replace a pokemon by ID
 app.put("/pokemon/:id", (req, res) => {
-  let modPokemon = req.body;
-  let id = Number(req.params.id);
-  let index = data.findIndex(p => p.id === id);
-  if (index !== -1) {
-    modPokemon.id = id;
-    data[index] = modPokemon;
-    res.send(modPokemon);
-  } else {
+  // Get ID from URL parameter
+  let id = req.params.id;
+  // Find it
+  let ix = data.findIndex(e => parseInt(e.id) === parseInt(req.params.id));
+  if (ix === -1) {
+    // Pokemon not found; return 404 status code
     res.status(404).send("Pokemon does not exist");
-  }
+  } else {
+    // Create new cat obj from request body
+    let modPokemon = req.body;
+    // Make sure modified Pokemon doesn't try to change ID
+    modPokemon.id = id;
+    // Replace old cat with modified one
+    data[ix] = modPokemon;
+    // Return modified cat as confirmation
+    res.send(modPokemon);
+  } //checked http://localhost:3000/pokemon/1 when using "PUT" and "GET"on Postman
 });
 
 //Delete a Pokemon by ID
 app.delete("/pokemon/:id", (req, res) => {
-  let id = Number(req.params.id);
-  let index = data.findIndex(p => p.id === id);
+  //Get ID from URL params
+  let id = req.params.id;
+  //Find it
+  let index = data.findIndex(e => parseInt(e.id) === parseInt(id));
+  //If the index is not less than 0
   if (index !== -1) {
+    //If pokemon is found, remove the pokemon from the array
     data.splice(index, 1);
+    //respond with message when executed
     res.send({ message: "Pokemon Deleted" });
   } else {
-  }
+  } // else  Pokemon not found; return 404 status code
   res.status(404).send("Pokemon does not exist");
+  //checked http://localhost:3000/pokemon/1 when using "DELETE" and "GET"on Postman
 });
 
 /****************Start Server******************** */
