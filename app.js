@@ -30,14 +30,19 @@ app.get("/pokemon", function(req, res) {
 }); //checked http://localhost:3000/pokemon on Postman and it works
 
 //Get pokemnon by id
+//get data from DB
 app.get("/pokemon/:id", function(req, res) {
+  //iterate through each pokemon, and for each pokemon,
   for (let i = 0; i < data.length; i++) {
     console.log(data[i]);
+    //conver the pokemon by id into number, it matches the given id from the requested id
     if (parseInt(data[i].id) === parseInt(req.params.id)) {
+      //return that pokemon
       return res.send(data[i]);
       // checked http://localhost:3000/pokemon/100 on Postman, and it works
     }
   }
+  //If not found, return 404 status and message
   res.status(404).send("Pokemon does not exist");
 
   /*
@@ -53,26 +58,20 @@ app.get("/pokemon/:id", function(req, res) {
 
 //Get pokemon attacks by id
 app.get("/pokemon/:id/attacks", function(req, res) {
-  // for (let i = 0; i < data.length; i++) {
-  //   console.log(data[i]);
-  //   if (parseInt(data[i].id) === parseInt(req.params.id)) {
-  //     return res.send(data[i]);
-  //     // checked http://localhost:3000/pokemon/100 on Postman, and it works
-  //   }
-  // }
-  // res.status(404).send("Pokemon does not exist");
-
-  //Same as ^
+  // for the data array, we use the find method to search through each pokemon by id and return if
+  //the id of the pokemon that matches the id in the requested params
   const pokemon = data.find(e => parseInt(e.id) === parseInt(req.params.id));
-
+  //if pokemon doesn't exist, return 404 status and message
   if (!pokemon) {
     res.status(404).send("Pokemon does not exist");
   }
-  res.send(pokemon);
+  //if pokemon exists, return attacks for this pokemon
+  res.send(pokemon.attacks);
 });
 
 //Add new pokemon
 app.post("/pokemon", function(req, res) {
+  //get data fromm req body
   let newPokemon = req.body;
   newPokemon.id = nextID++;
   console.log(req.body);
