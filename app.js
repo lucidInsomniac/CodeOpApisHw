@@ -10,8 +10,9 @@ const data = require("./data/pokemon.js");
 //converts them to JS
 app.use(bodyParser.json());
 
-//prints some information for every request
+//print some information for every request
 app.use(function(req, res, next) {
+  console.log("Got a request", req.method, req.contentType);
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE"),
     res.header(
@@ -19,13 +20,14 @@ app.use(function(req, res, next) {
       "Origin, X-Requested-With, Content-Type, Accept"
     );
   res.contentType("application/json");
+  // Give next middleware a chance to run
   next();
 });
 
 //Get all pokemnon
 app.get("/pokemon", function(req, res) {
-  res.send(data);
-});
+  res.send({ pokemon: data });
+}); //checked http://localhost:3000/pokemon on Postman and it works
 
 //Get pokemnon by id
 app.get("/pokemon/:id", function(req, res) {
@@ -33,6 +35,7 @@ app.get("/pokemon/:id", function(req, res) {
     console.log(data[i]);
     if (parseInt(data[i].id) === parseInt(req.params.id)) {
       return res.send(data[i]);
+      // checked http://localhost:3000/pokemon/100 on Postman, and it works
     }
   }
   res.status(404).send("Pokemon does not exist");
@@ -73,7 +76,7 @@ app.post("/pokemon", function(req, res) {
 //Add homepage
 app.get("/", function(req, res) {
   res.send("Hello world");
-});
+}); //checked http://localhost:3000/ on Postman and works
 
 //Update/replace a pokemon by ID
 app.put("/pokemon/:id", (req, res) => {
