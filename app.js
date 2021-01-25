@@ -53,15 +53,22 @@ app.get("/pokemon/:id", function(req, res) {
 
 //Get pokemon attacks by id
 app.get("/pokemon/:id/attacks", function(req, res) {
-  for (let i = 0; i < data.length; i++) {
-    console.log(data[i]);
+  // for (let i = 0; i < data.length; i++) {
+  //   console.log(data[i]);
+  //   if (parseInt(data[i].id) === parseInt(req.params.id)) {
+  //     return res.send(data[i]);
+  //     // checked http://localhost:3000/pokemon/100 on Postman, and it works
+  //   }
+  // }
+  // res.status(404).send("Pokemon does not exist");
+
+  //Same as ^
+  const pokemon = data.find(e => parseInt(e.id) === parseInt(req.params.id));
+
+  if (!pokemon) {
+    res.status(404).send("Pokemon does not exist");
   }
-  for (let j = 0; j < data[i].length; j++) {
-    if (parseInt(data[i][j].id) === parseInt(req.params.id)) {
-      return res.send(data[i][j]);
-    }
-  }
-  res.status(404).send("Pokemon does not exist");
+  res.send(pokemon);
 });
 
 //Add new pokemon
