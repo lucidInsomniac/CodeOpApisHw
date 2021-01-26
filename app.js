@@ -11,7 +11,7 @@ const pokemon = require("./data/pokemon.js");
 //converts them to JS
 app.use(bodyParser.json());
 
-//print some information for every request
+// allows webserver to be  open
 app.use(function(req, res, next) {
   console.log("Got a request", req.method, req.contentType);
   res.header("Access-Control-Allow-Origin", "*");
@@ -21,9 +21,11 @@ app.use(function(req, res, next) {
       "Origin, X-Requested-With, Content-Type, Accept"
     );
   res.contentType("application/json");
-  // Give next middleware a chance to run
+  // Give next middleware a chance to run, print some information for every request,
   next();
 });
+
+/************************Routes******************************* */
 
 //Get all pokemnon
 app.get("/pokemon", function(req, res) {
@@ -44,7 +46,7 @@ app.get("/pokemon/:id", function(req, res) {
     }
   }
   //If not found, return 404 status and message
-  res.status(404).send("Pokemon does not exist");
+  res.status(404).send({ error: "Pokemon does not exist" });
 
   /*
   Same as ^
@@ -59,28 +61,61 @@ app.get("/pokemon/:id", function(req, res) {
 
 //Get pokemon attacks by id
 app.get("/pokemon/:id/attacks", function(req, res) {
-  // for the data array, we use the find method to search through each pokemon by id and return if
+  //Version 1
+  //iterate through each pokemon, and for each pokemon,
+  // for (let i = 0; i < data.length; i++) {
+  //   console.log(data[i]);
+  //   //conver the pokemon by id into number, it matches the given id from the requested id
+  //   if (parseInt(data[i].id) === parseInt(req.params.id)) {
+  //     //return that pokemon with attacks
+  //     return res.send(data[i].attacks);
+  //   } else {
+  //     //else  Pokemon not found; return 404 status code
+  //   } res.status(404).send('Pokemon does not exist');
+  // }
+
+  //Version 2
+  //for the data array, we use the find method to search through each pokemon by id and return if
   //the id of the pokemon that matches the id in the requested params
   const pokemon = data.find(e => parseInt(e.id) === parseInt(req.params.id));
   //if pokemon doesn't exist, return 404 status and message
   if (!pokemon) {
-    res.status(404).send("Pokemon does not exist");
+    res.status(404).send({ error: "Pokemon does not exist" });
   }
   //if pokemon exists, return attacks for this pokemon
   res.send(pokemon.attacks);
 });
 
 //Add new pokemon
+//With 409
 app.post("/pokemon", function(req, res) {
   //Get pokemon data from request body
-  let newPokemon = req.body;
+  let newPokemon = req.params.body;
   console.log(req.body);
-  //Add pokemon to DB
+
+  const pokemon = data.find(p => parseInt(p.id) === parseInt(newPokemon.id));
+  if (pokemon) {
+    res.send(409).send({ error: "ID already exist" });
+  } else {
+    //Add pokemon to DB
+  }
   data.push(newPokemon);
   //Return status code 201: new resource created, and confirm
   res.status(201).send(data);
   // checked and prints to console with updated id # but shows as NaN when using GET
 });
+
+//Without 409
+// app.post("/pokemon", function(req, res) {
+//   //Get pokemon data from request body
+//   let newPokemon = req.params.body;
+//   console.log(req.body);
+//   //Add pokemon to DB
+//   data.push(newPokemon);
+//   //Return status code 201: new resource created, and confirm
+//   res.status(201).send(data);
+//   // checked and prints to console with updated id # but shows as NaN when using GET
+// });
 
 /*
 app.post('/cats', (req, res) => {
@@ -111,7 +146,7 @@ app.put("/pokemon/:id", (req, res) => {
   let ix = data.findIndex(e => parseInt(e.id) === parseInt(req.params.id));
   if (ix === -1) {
     // Pokemon not found; return 404 status code
-    res.status(404).send("Pokemon does not exist");
+    res.status(404).send({ error: "Pokemon does not exist" });
   } else {
     // Create new cat obj from request body
     let modPokemon = req.body;
@@ -138,7 +173,7 @@ app.delete("/pokemon/:id", (req, res) => {
     res.send({ message: "Pokemon Deleted" });
   } else {
   } // else  Pokemon not found; return 404 status code
-  res.status(404).send("Pokemon does not exist");
+  res.status(404).send({ error: "Pokemon does not exist" });
   //checked http://localhost:3000/pokemon/1 when using "DELETE" and "GET"on Postman
 });
 
