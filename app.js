@@ -155,7 +155,7 @@ app.put("/pokemon/:id", (req, res) => {
     // Replace old cat with modified one
     data[ix] = modPokemon;
     // Return modified cat as confirmation
-    res.send(modPokemon);
+    res.status(200).send(data);
   } //checked http://localhost:3000/pokemon/1 when using "PUT" and "GET"on Postman
 });
 
