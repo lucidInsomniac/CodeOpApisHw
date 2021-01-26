@@ -75,8 +75,6 @@ app.post("/pokemon", function(req, res) {
   //Get pokemon data from request body
   let newPokemon = req.body;
   console.log(req.body);
-  //Add a unique ID
-  newPokemon.id = data.id++;
   //Add pokemon to DB
   data.push(newPokemon);
   //Return status code 201: new resource created, and confirm
