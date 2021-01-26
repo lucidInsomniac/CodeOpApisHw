@@ -163,14 +163,14 @@ app.put("/pokemon/:id", (req, res) => {
 app.delete("/pokemon/:id", (req, res) => {
   //Get ID from URL params
   let id = req.params.id;
-  //Find it
+  //Find it, see if it exists and if in the index
   let index = data.findIndex(e => parseInt(e.id) === parseInt(id));
   //If the index is not less than 0
   if (index !== -1) {
     //If pokemon is found, remove the pokemon from the array
     data.splice(index, 1);
     //respond with message when executed
-    res.send({ message: "Pokemon Deleted" });
+    res.status(200).send({ data }); //route should be consistent, response with entire data is confirmation
   } else {
   } // else  Pokemon not found; return 404 status code
   res.status(404).send({ error: "Pokemon does not exist" });
